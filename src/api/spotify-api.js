@@ -6,7 +6,6 @@ class SpotifyAPI {
         this.baseUrl = 'https://api.spotify.com/v1';
     }
 
- 
     async makeRequest(endpoint, options = {}) {
         if (!this.auth.isLoggedIn()) {
             throw new Error('Usuario no autenticado');
@@ -36,17 +35,14 @@ class SpotifyAPI {
         }
     }
 
-    
     async getUserProfile() {
         return await this.makeRequest('/me');
     }
-
 
     async getUserPlaylists(limit = 20) {
         return await this.makeRequest(`/me/playlists?limit=${limit}`);
     }
 
-    
     async getTopTracks(timeRange = 'medium_term', limit = 20) {
         return await this.makeRequest(`/me/top/tracks?time_range=${timeRange}&limit=${limit}`);
     }
@@ -55,43 +51,35 @@ class SpotifyAPI {
         return await this.makeRequest(`/me/top/artists?time_range=${timeRange}&limit=${limit}`);
     }
 
-   
     async getRecentlyPlayed(limit = 20) {
         return await this.makeRequest(`/me/player/recently-played?limit=${limit}`);
     }
 
-    
     async search(query, type = 'track', limit = 20) {
         const encodedQuery = encodeURIComponent(query);
         return await this.makeRequest(`/search?q=${encodedQuery}&type=${type}&limit=${limit}`);
     }
 
-   
     async getPlaylist(playlistId) {
         return await this.makeRequest(`/playlists/${playlistId}`);
     }
 
-    
     async getPlaylistTracks(playlistId, limit = 50) {
         return await this.makeRequest(`/playlists/${playlistId}/tracks?limit=${limit}`);
     }
 
-   
     async getAlbum(albumId) {
         return await this.makeRequest(`/albums/${albumId}`);
     }
 
-    
     async getArtist(artistId) {
         return await this.makeRequest(`/artists/${artistId}`);
     }
 
-   
     async getArtistAlbums(artistId, limit = 20) {
         return await this.makeRequest(`/artists/${artistId}/albums?limit=${limit}`);
     }
 
-   
     async getArtistTopTracks(artistId, country = 'ES') {
         return await this.makeRequest(`/artists/${artistId}/top-tracks?market=${country}`);
     }
@@ -99,3 +87,31 @@ class SpotifyAPI {
 
 export default SpotifyAPI;
 
+/* ---------- EJEMPLO DE USO Y RENDERIZADO ---------- */
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const api = new SpotifyAPI();
+    const container = document.getElementById('lista-playlists');
+
+    try {
+        // Obtener playlists del usuario
+        const data = await api.getUserPlaylists(10);
+
+        // Pintar en el DOM
+        if (data.items && data.items.length > 0) {
+            container.innerHTML = data.items
+                .map(playlist => `
+                    <li>
+                        <img src="${playlist.images[0]?.url || ''}" alt="${playlist.name}" width="50" height="50" />
+                        ${playlist.name}
+                    </li>
+                `)
+                .join('');
+        } else {
+            container.innerHTML = '<li>No tienes playlists</li>';
+        }
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<li>Error al cargar playlists</li>';
+    }
+});
