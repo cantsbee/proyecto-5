@@ -4,7 +4,7 @@ import { createFooter } from './components/footer.js';
 
 
 let currentProfile = null;
-const clientId = "6e4ca8910c3c479ea21b9de20ca7646c";
+const clientId = "da6c869ff792411388e5dce6c6032054";
 
 async function loadApp() {
     const headerElement = document.getElementById('header');
