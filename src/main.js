@@ -2,7 +2,7 @@ import { createHeader } from './components/header.js';
 import { createHero } from './components/hero.js';
 import { createFooter } from './components/footer.js';
 
-
+// Variables globales
 let currentProfile = null;
 const clientId = "da6c869ff792411388e5dce6c6032054";
 
@@ -17,7 +17,7 @@ async function loadApp() {
 
     setupEventListeners();
     
-   
+    // Verificar si hay código de autorización en la URL
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
@@ -27,7 +27,7 @@ async function loadApp() {
             localStorage.setItem("spotify_access_token", accessToken);
             const profile = await fetchProfile(accessToken);
             updateUIWithProfile(profile);
-           
+            // Limpiar URL
             window.history.replaceState({}, document.title, window.location.pathname);
         } catch (error) {
             console.error('Error durante la autenticación:', error);
@@ -51,6 +51,7 @@ function setupEventListeners() {
         });
     });
 
+    // Botones del hero
     const primaryBtn = document.querySelector('.btn-primary');
     const secondaryBtn = document.querySelector('.btn-secondary');
     
@@ -90,29 +91,29 @@ function updateLoginButton() {
 
 function updateUIWithProfile(profile) {
     if (profile) {
-        
+        // Actualizar el header con información del usuario
         const logo = document.querySelector('.logo h2');
         if (logo) {
             logo.innerHTML = `🎵 Hola, ${profile.display_name}!`;
         }
         
-        
+        // Mostrar y poblar la sección de perfil
         const profileSection = document.getElementById('spotify-profile');
         if (profileSection) {
             profileSection.style.display = 'block';
             populateUI(profile);
         }
         
-       
+        // Mostrar información del perfil en una notificación
         showProfileInfo(profile);
     } else {
-        
+        // Restaurar el logo original
         const logo = document.querySelector('.logo h2');
         if (logo) {
-            logo.innerHTML = '🎵 FESTIBY';
+            logo.innerHTML = '🎵 Music Vlog';
         }
         
-        
+        // Ocultar la sección de perfil
         const profileSection = document.getElementById('spotify-profile');
         if (profileSection) {
             profileSection.style.display = 'none';
@@ -120,7 +121,7 @@ function updateUIWithProfile(profile) {
     }
 }
 
-
+// Función populateUI del código original (adaptada)
 function populateUI(profile) {
     const displayNameEl = document.getElementById("displayName");
     const avatarEl = document.getElementById("avatar");
@@ -133,7 +134,7 @@ function populateUI(profile) {
     if (displayNameEl) displayNameEl.innerText = profile.display_name || 'Usuario';
     
     if (profile.images?.[0]?.url && avatarEl) {
-        avatarEl.innerHTML = ''; 
+        avatarEl.innerHTML = ''; // Limpiar contenido anterior
         const img = new Image(100, 100);
         img.src = profile.images[0].url;
         img.alt = 'Avatar de ' + profile.display_name;
@@ -155,7 +156,7 @@ function populateUI(profile) {
     }
 }
 
-// Funciones de SPOTYYY
+// Funciones de autenticación PKCE
 async function redirectToAuthCodeFlow(clientId) {
     const verifier = generateCodeVerifier(128);
     const challenge = await generateCodeChallenge(verifier);
@@ -240,7 +241,7 @@ function clearTokens() {
     localStorage.removeItem("verifier");
 }
 
-
+// Funciones de ejemplo para usar la API
 async function showLatestPosts() {
     if (!isLoggedIn()) {
         alert('Primero conecta tu cuenta de Spotify');
@@ -281,20 +282,40 @@ async function showPlaylists() {
         console.log('Cargando playlists...');
         const token = localStorage.getItem("spotify_access_token");
         
-        const response = await fetch('https://api.spotify.com/v1/me/playlists?limit=10', {
+        // Primero obtener las playlists del usuario
+        const playlistsResponse = await fetch('https://api.spotify.com/v1/me/playlists?limit=5', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         
-        if (!response.ok) {
+        if (!playlistsResponse.ok) {
             throw new Error('Error al obtener playlists de Spotify');
         }
         
-        const playlists = await response.json();
+        const playlists = await playlistsResponse.json();
         console.log('Tus playlists:', playlists);
         
-        displayMusicData('Tus playlists', playlists.items);
+        if (playlists.items && playlists.items.length > 0) {
+            // Obtener las canciones de la primera playlist
+            const firstPlaylist = playlists.items[0];
+            const tracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${firstPlaylist.id}/tracks?limit=10`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (tracksResponse.ok) {
+                const tracks = await tracksResponse.json();
+                console.log('Canciones de la playlist:', tracks);
+                displayMusicData(`Canciones de "${firstPlaylist.name}"`, tracks.items);
+            } else {
+                // Si no se pueden obtener las canciones, mostrar las playlists
+                displayMusicData('Tus playlists', playlists.items);
+            }
+        } else {
+            alert('No tienes playlists disponibles');
+        }
     } catch (error) {
         console.error('Error al cargar playlists:', error);
         alert('Error al cargar playlists. Verifica tu conexión con Spotify.');
@@ -335,7 +356,7 @@ function showProfileInfo(profile) {
     profileModal.innerHTML = html;
     document.body.appendChild(profileModal);
 
-   
+    // Auto-cerrar después de 5 segundos
     setTimeout(() => {
         if (profileModal.parentNode) {
             profileModal.remove();
@@ -344,7 +365,7 @@ function showProfileInfo(profile) {
 }
 
 function displayMusicData(title, items) {
-    
+    // Crear un modal simple para mostrar los datos
     const modal = document.createElement('div');
     modal.style.cssText = `
         position: fixed;
@@ -372,8 +393,27 @@ function displayMusicData(title, items) {
     let html = `<h2 style="color: #fd79a8; margin-bottom: 1rem;">${title}</h2>`;
     
     items.forEach((item, index) => {
-        const name = item.name || 'Sin nombre';
-        const artist = item.artists ? item.artists[0].name : (item.owner ? item.owner.display_name : '');
+        // Manejar diferentes estructuras de datos
+        let name, artist;
+        
+        if (item.track) {
+            // Es un elemento de playlist que contiene un track
+            name = item.track.name || 'Sin nombre';
+            artist = item.track.artists && item.track.artists[0] ? item.track.artists[0].name : '';
+        } else if (item.name && item.artists) {
+            // Es una canción directa (top tracks)
+            name = item.name;
+            artist = item.artists[0] ? item.artists[0].name : '';
+        } else if (item.name && item.owner) {
+            // Es una playlist
+            name = item.name;
+            artist = item.owner.display_name;
+        } else {
+            // Fallback
+            name = item.name || 'Sin nombre';
+            artist = '';
+        }
+        
         html += `
             <div style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
                 <strong>${index + 1}. ${name}</strong>
@@ -397,4 +437,3 @@ function displayMusicData(title, items) {
 }
 
 document.addEventListener('DOMContentLoaded', loadApp);
-
