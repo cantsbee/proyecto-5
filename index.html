@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frases Inspiradoras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+    <div id="app">
+
+
+       
+        <main class="main">
+            <div class="container">
+                <!-- Hero Section -->
+                <section class="hero">
+                    <h2 class="hero-title">Encuentra tu inspiración diaria</h2>
+                    <p class="hero-description">Descubre frases motivadoras que cambiarán tu perspectiva</p>
+                </section>
+
+               
+                <section class="quote-section">
+                    <div class="quote-card" id="quote-card">
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Cargando frase inspiradora...</p>
+                        </div>
+                        
+                        <div class="quote-content" id="quote-content" style="display: none;">
+                            <blockquote class="quote-text" id="quote-text">
+                                
+                            </blockquote>
+                            <cite class="quote-author" id="quote-author">
+                              
+                            </cite>
+                        </div>
+                    </div>
+
+                    <div class="quote-actions">
+                        <button id="share-btn" class="btn btn-secondary">
+                            <span>📤</span> Compartir
+                        </button>
+                        <button id="favorite-btn" class="btn btn-secondary">
+                            <span>❤️</span> Me gusta
+                        </button>
+                        <button id="copy-btn" class="btn btn-secondary">
+                            <span>📋</span> Copiar
+                        </button>
+                    </div>
+                </section>
+
+                
+                <section class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="quotes-count">0</div>
+                            <div class="stat-label">Frases vistas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="favorites-count">0</div>
+                            <div class="stat-label">Favoritas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="shares-count">0</div>
+                            <div class="stat-label">Compartidas</div>
+                        </div>
+                    </div>
+                </section>
+
+  >
+                <section class="recent-section">
+                    <h3 class="section-title">Frases recientes</h3>
+                    <div class="recent-quotes" id="recent-quotes">
+                        <!-- Las frases recientes se cargarán aquí -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+
+    </div>
+
+   
+    <div id="notifications"></div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
